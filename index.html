@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ECEBFA">
+<meta name="description" content="상황 속 마음을 표정으로 연기하고 감정 단어로 이야기 나누는 사회정서 학급놀이">
+<title>표정 챌린지 | 티처빌연수원</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
+
+<main id="app">
+
+  <!-- ============ 1. 표지 ============ -->
+  <section id="screen-start" class="screen active" aria-labelledby="title-main">
+    <div class="start-wrap">
+      <div class="start-left">
+        <span class="pill-soft">우리 반 마음 놀이</span>
+        <h1 id="title-main" class="sticker-title" aria-label="표정 챌린지">
+          <span class="row">
+            <span class="ch c1">표</span><span class="ch c2">정</span>
+            <svg class="deco heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.6 3 5 6.4 5c2.1 0 3.6 1.2 4.4 2.6h2.4C14 6.2 15.5 5 17.6 5 21 5 23 8.6 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>
+          </span>
+          <span class="row">
+            <span class="ch c3">챌</span><span class="ch c4">린</span><span class="ch c5">지</span>
+            <svg class="deco star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 7.4 7.4 2.6-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6z"/></svg>
+          </span>
+        </h1>
+        <p class="lead">얼굴로 마음을 연기하고,<br>감정 단어로 이야기해요</p>
+        <div class="btn-row">
+          <button type="button" class="btn-jelly btn-xl" id="btn-start">
+            시작하기
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </button>
+          <button type="button" class="btn-glass" id="btn-open-cards">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
+            카드·질문 목록
+          </button>
+        </div>
+        <p class="privacy">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          카메라 영상은 기기 밖으로 나가지 않아요 · 저장·전송 없음
+        </p>
+      </div>
+      <div class="start-right">
+        <div class="glass-card face-card">
+          <div class="face-holder" id="cover-face"></div>
+          <span class="muted-label">오늘의 마음</span>
+          <span class="face-name" id="cover-name">뿌듯함</span>
+          <div class="emo-chips" id="cover-chips"></div>
+        </div>
+      </div>
+    </div>
+    <footer class="start-foot">
+      <div class="foot-links">
+        <button type="button" class="link-btn" id="btn-qr">폰·태블릿으로 열기 (QR)</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="link-btn" id="btn-licenses">오픈소스 라이선스</button>
+        <span class="version" id="app-version"></span>
+      </div>
+      <div class="brand">
+        <img src="assets/teacherville-logo.png" alt="티처빌" class="brand-logo">
+        <span>© 2026 티처빌연수원</span>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ============ 2. 카메라 준비(보정) ============ -->
+  <section id="screen-calib" class="screen" aria-labelledby="calib-title">
+    <header class="topbar">
+      <button type="button" class="btn-chip" data-go="start">‹ 처음으로</button>
+      <span class="brand-title">표정 챌린지</span>
+      <span class="spacer"></span>
+    </header>
+    <div class="calib-body">
+      <div class="cam-slot" id="calib-cam-slot"></div>
+      <div class="glass-card calib-panel">
+        <h2 id="calib-title" class="jua">카메라 준비</h2>
+        <p class="calib-msg" id="calib-msg">카메라를 켜는 중이에요…</p>
+        <div class="calib-steps">
+          <div class="step"><b>1</b>화면 가운데에 얼굴이 보이게 앉아요</div>
+          <div class="step"><b>2</b>편안한 얼굴로 3초 동안 가만히 있어요</div>
+          <div class="step"><b>3</b>준비가 끝나면 게임이 시작돼요</div>
+        </div>
+        <div class="btn-col">
+          <button type="button" class="btn-jelly" id="btn-calib" disabled>편안한 얼굴 기억하기</button>
+          <button type="button" class="link-btn" id="btn-nocam">카메라 없이 하기 (선생님이 통과 판정)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. 표정 연기 ============ -->
+  <section id="screen-play" class="screen" aria-label="표정 연기">
+    <header class="topbar">
+      <button type="button" class="btn-chip" data-go="start" aria-label="처음으로">‹</button>
+      <span class="brand-title">표정 챌린지</span>
+      <span class="spacer"></span>
+      <span class="pill-glass" id="play-count">카드 1 / 10</span>
+      <span class="pill-glass star-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg><span id="play-stars">우리 반 별 0 / 10</span></span>
+      <span class="pill-dark" id="play-timer">0:15</span>
+    </header>
+    <div class="play-body">
+      <div class="cam-slot" id="play-cam-slot"></div>
+      <div class="play-side">
+        <div class="glass-card situation">
+          <span class="tag-grad">상황 카드</span>
+          <p id="play-text"></p>
+        </div>
+        <div class="glass-card gauge-card">
+          <div class="gauge-head">
+            <span id="gauge-label">슬픔 표정</span>
+            <span class="gauge-num jua" id="gauge-num">0</span>
+          </div>
+          <div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge">
+            <div class="gauge-fill" id="gauge-fill"></div>
+            <div class="gauge-line" id="gauge-line"></div>
+          </div>
+          <div class="gauge-foot"><span id="gauge-hint">이 상황의 표정을 지어 보세요</span><span id="gauge-pass">통과선 70</span></div>
+          <div class="mini-meters" id="mini-meters"></div>
+          <button type="button" class="btn-teacher" id="btn-teacher-pass" hidden>잘했어요! 통과</button>
+        </div>
+        <div class="btn-row play-actions">
+          <button type="button" class="btn-glass" id="btn-skip">건너뛰기</button>
+          <button type="button" class="btn-jelly grow" id="btn-to-pick">마음 고르기로</button>
+        </div>
+      </div>
+    </div>
+    <div class="pass-banner" id="pass-banner" hidden>
+      <span class="jua">통과!</span>
+      <small>우리 반 별 +1</small>
+    </div>
+  </section>
+
+  <!-- ============ 4. 마음 고르기 ============ -->
+  <section id="screen-pick" class="screen" aria-labelledby="pick-title">
+    <header class="topbar">
+      <span class="brand-title">표정 챌린지</span>
+      <span class="spacer"></span>
+      <span class="pill-glass" id="pick-count">카드 1 / 10</span>
+    </header>
+    <div class="pick-body">
+      <div class="pick-left">
+        <div class="score-card" id="score-card">
+          <span class="score-top" id="score-top">표정 연기 성공!</span>
+          <div class="score-row"><span class="score-num jua" id="score-num">0</span><span class="jua score-emo" id="score-emo">점 · 슬픔</span></div>
+          <span class="pill-white" id="score-star">우리 반 별 1 / 10</span>
+        </div>
+        <div class="glass-card picked-card">
+          <span class="jua sub-title">우리 반이 고른 마음</span>
+          <div class="picked-list" id="picked-list"></div>
+          <span class="muted-small" id="picked-empty">오른쪽에서 마음 단어를 골라 보세요</span>
+          <div class="dict-line">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
+            <span id="dict-count">우리 반 마음 사전 · 새로 찾은 마음 0개</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card pick-main">
+        <span class="tag-grad" id="pick-situation"></span>
+        <h2 id="pick-title" class="jua big-q">이때 어떤 마음이었을까?</h2>
+        <span class="muted-small" id="pick-hint">여러 개 골라도 돼요 · 0개 선택</span>
+        <div class="word-grid" id="word-grid"></div>
+        <div class="pick-foot">
+          <span class="muted-small grow">정답은 없어요. 같은 상황에서도 사람마다 느끼는 마음이 달라요.</span>
+          <button type="button" class="btn-dark" id="btn-to-talk">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+            이야기 나눠요
+          </button>
+          <button type="button" class="btn-jelly" id="btn-next-from-pick">다음 카드
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. 이야기 카드 ============ -->
+  <section id="screen-talk" class="screen" aria-labelledby="talk-title">
+    <header class="topbar">
+      <button type="button" class="btn-chip" id="btn-talk-back">‹ 마음 고르기</button>
+      <span class="jua talk-head" id="talk-title">이야기 카드</span>
+      <span class="muted-small ellipsis grow" id="talk-context"></span>
+    </header>
+    <div class="talk-body">
+      <nav class="talk-tabs" id="talk-tabs" aria-label="이야기 순서"></nav>
+      <div class="glass-card talk-main">
+        <div class="talk-meta">
+          <span class="tag-soft" id="talk-domain"></span>
+          <span class="spacer"></span>
+          <span class="jua talk-step" id="talk-step">1 / 4</span>
+        </div>
+        <p class="jua talk-q" id="talk-q"></p>
+        <div class="talk-follow" id="talk-follow-wrap">
+          <span class="tag-soft small" id="talk-follow-tag">더 깊이</span>
+          <span id="talk-follow"></span>
+        </div>
+        <div class="talk-foot">
+          <button type="button" class="btn-glass" id="btn-talk-prev">이전 질문</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn-dark" id="btn-talk-next">다음 질문</button>
+          <button type="button" class="btn-jelly" id="btn-talk-done">다음 카드로
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. 끝 ============ -->
+  <section id="screen-end" class="screen" aria-labelledby="end-title">
+    <div class="end-wrap glass-card">
+      <div class="end-stars" id="end-stars"></div>
+      <h2 id="end-title" class="jua end-title">우리 반 마음 챌린지 완성!</h2>
+      <p class="end-sub" id="end-sub"></p>
+      <div class="end-words" id="end-words"></div>
+      <div class="btn-row center">
+        <button type="button" class="btn-glass" data-go="start">처음으로</button>
+        <button type="button" class="btn-jelly" id="btn-replay">한 번 더 하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7. 선생님용 카드·질문 목록 ============ -->
+  <section id="screen-cards" class="screen" aria-labelledby="cards-title">
+    <header class="topbar wrap">
+      <button type="button" class="btn-chip" data-go="start">‹ 표지로</button>
+      <div class="cards-head">
+        <span class="jua" id="cards-title">카드 · 질문 목록</span>
+        <small>수업 전에 확인하고, 우리 반에 맞게 고쳐 쓰세요</small>
+      </div>
+      <span class="spacer"></span>
+      <span class="pill-glass" id="used-count">오늘 사용할 카드 0장</span>
+      <button type="button" class="btn-dark small" id="btn-new-card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        새 카드
+      </button>
+    </header>
+    <div class="settings-bar glass-card">
+      <label>한 번에 할 카드
+        <select id="set-count">
+          <option value="5">5장</option><option value="8">8장</option><option value="10">10장</option><option value="15">15장</option><option value="0">사용할 카드 모두</option>
+        </select>
+      </label>
+      <label>제한 시간
+        <select id="set-time">
+          <option value="10">10초</option><option value="15">15초</option><option value="20">20초</option><option value="30">30초</option><option value="0">없음</option>
+        </select>
+      </label>
+      <label>표정 통과 기준
+        <select id="set-level">
+          <option value="55">쉬움</option><option value="70">보통</option><option value="82">어려움</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="set-sound"> 효과음</label>
+      <span class="spacer"></span>
+      <button type="button" class="link-btn" id="btn-restore-all">기본 카드 모두 되살리기</button>
+    </div>
+    <div class="cards-body">
+      <div class="glass-card cards-list-panel">
+        <div class="emo-tabs" id="emo-tabs" role="tablist"></div>
+        <div class="cards-list" id="cards-list"></div>
+        <span class="muted-small">왼쪽 체크를 끄면 오늘 수업에서 빠져요</span>
+      </div>
+      <div class="glass-card cards-edit" id="cards-edit">
+        <div class="empty-edit" id="empty-edit" hidden>
+          <span class="jua">이 감정에는 카드가 없어요</span>
+          <span class="muted-small">위쪽 "새 카드"로 우리 반 상황을 만들어 보세요</span>
+        </div>
+        <div class="field">
+          <label for="edit-text">상황 문장</label>
+          <textarea id="edit-text" rows="2" placeholder="예) 쉬는 시간에 친구가 내 필통을 말없이 가져갔어요."></textarea>
+        </div>
+        <div class="field">
+          <span class="field-label">보기 감정 단어</span>
+          <div class="edit-words" id="edit-words"></div>
+        </div>
+        <div class="field">
+          <span class="field-label">이야기 질문</span>
+          <div class="edit-qs" id="edit-qs"></div>
+        </div>
+        <div class="edit-foot" id="edit-foot"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 카메라 화면 (화면마다 옮겨 씀) -->
+<div class="cam-stage" id="cam-stage">
+  <video id="cam-video" playsinline muted autoplay></video>
+  <canvas id="cam-canvas"></canvas>
+  <div class="cam-placeholder" id="cam-placeholder">
+    <svg viewBox="0 0 190 230" aria-hidden="true"><ellipse cx="95" cy="115" rx="80" ry="105"/></svg>
+    <span id="cam-placeholder-text">카메라 준비 중</span>
+  </div>
+  <span class="cam-status" id="cam-status"><i></i><b>준비 중</b></span>
+</div>
+
+<!-- 모달 -->
+<div class="modal-back" id="modal" hidden>
+  <div class="modal glass-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <h2 class="jua" id="modal-title"></h2>
+      <button type="button" class="icon-btn" id="modal-close" aria-label="닫기">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+<div class="sr-only" aria-live="polite" id="live"></div>
+
+<script src="cards.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
