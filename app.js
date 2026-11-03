@@ -8,7 +8,7 @@
   "use strict";
 
   /* ---------- 설정 ---------- */
-  var APP_VERSION = "v1.1";
+  var APP_VERSION = "v1.2";
   var MP_VERSION = "0.10.14";
   var MP_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + MP_VERSION;
   var MP_MODULE = MP_BASE + "/vision_bundle.mjs";
