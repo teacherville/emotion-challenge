@@ -8,7 +8,7 @@
   "use strict";
 
   /* ---------- 설정 ---------- */
-  var APP_VERSION = "v1.0";
+  var APP_VERSION = "v1.1";
   var MP_VERSION = "0.10.14";
   var MP_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + MP_VERSION;
   var MP_MODULE = MP_BASE + "/vision_bundle.mjs";
@@ -21,12 +21,21 @@
     scale: 이 값만큼 표정을 지으면 100점 (작을수록 쉬워요)
   */
   var TUNING = {
-    joy:      { scale: 0.75 },
-    surprise: { scale: 0.85 },
-    sad:      { scale: 0.55 },
-    angry:    { scale: 0.60 },
+    joy:      { scale: 0.75, passOffset: 0 },
+    surprise: { scale: 0.85, passOffset: 0 },
+    sad:      { scale: 0.55, passOffset: -10 },  // 슬픔은 얼굴 움직임이 작아서 통과선을 10 낮춰요
+    angry:    { scale: 0.60, passOffset: -5 },
+    headDownRange: 0.12,  // 고개를 이만큼 숙이면 "고개 숙이기" 신호가 최대 (작을수록 민감)
     smoothing: 0.35,      // 0~1, 클수록 게이지가 빠르게 움직여요
     holdMs: 500           // 통과선을 이 시간 동안 넘기면 통과
+  };
+
+  /* 표정 연기 팁 (점수가 낮을 때 화면에 보여줘요) */
+  var COACH = {
+    joy: "입꼬리를 쭉 올리고 눈웃음 지어요",
+    surprise: "눈을 크게, 입을 동그랗게, 눈썹을 위로!",
+    sad: "입꼬리 내리고 입술 삐죽, 고개를 살짝 숙여요",
+    angry: "미간을 찌푸리고 입을 꾹 다물어요"
   };
 
   var EMO_KEYS = ["joy", "surprise", "sad", "angry"];
@@ -41,6 +50,7 @@
 
   var params = new URLSearchParams(location.search);
   var DEMO = params.get("demo") === "1";
+  var DEBUG = params.get("debug") === "1";
 
   /* ---------- 작은 도구 ---------- */
   function $(id) { return document.getElementById(id); }
@@ -328,10 +338,20 @@
     }
     return m;
   }
-  function featureFrom(m) {
+  /* 고개 숙임 정도: 눈~턱 사이에서 코끝이 얼마나 아래에 있는지 (고개를 숙이면 커져요) */
+  function headRatioFrom(lm) {
+    if (!lm || !lm[1] || !lm[33] || !lm[263] || !lm[152]) return 0;
+    var eyeY = (lm[33].y + lm[263].y) / 2, chinY = lm[152].y;
+    var span = chinY - eyeY;
+    if (span <= 0.0001) return 0;
+    return (lm[1].y - eyeY) / span;
+  }
+  function featureFrom(m, lm) {
     function g(k) { return m[k] || 0; }
     function avg(a, b) { return (g(a) + g(b)) / 2; }
     return {
+      pucker: g("mouthPucker"),
+      headRatio: headRatioFrom(lm),
       smile: avg("mouthSmileLeft", "mouthSmileRight"),
       frown: avg("mouthFrownLeft", "mouthFrownRight"),
       browDown: avg("browDownLeft", "browDownRight"),
@@ -353,12 +373,47 @@
       var b = base ? base[k] : 0;
       a[k] = Math.max(0, (f[k] - b) / Math.max(0.25, 1 - b));
     });
+    // 고개 숙이기는 보정 때의 자세와 비교해요
+    a.headDown = base ? clamp((f.headRatio - base.headRatio) / TUNING.headDownRange, 0, 1) : 0;
+    cam.lastA = a;
     return {
       joy: a.smile * 1.25 + a.squint * 0.15,
       surprise: a.jawOpen * 0.55 + a.eyeWide * 0.9 + a.browInnerUp * 0.5 + a.browOuterUp * 0.6 - a.smile * 0.4,
-      sad: a.frown * 1.3 + a.browInnerUp * 0.7 + a.shrugLower * 0.45 + a.press * 0.25 + a.stretch * 0.2 - a.smile * 0.8 - a.jawOpen * 0.3,
+      // 슬픔: 입꼬리 내리기 + 눈썹 안쪽 올리기 + 아랫입술 올리기/삐죽 + 고개 숙이기
+      sad: a.frown * 1.2 + a.browInnerUp * 0.7 + a.shrugLower * 0.5 + a.pucker * 0.35 + a.press * 0.2 + a.stretch * 0.15 + a.headDown * 0.45
+           - a.smile * 0.8 - a.jawOpen * 0.3 - a.eyeWide * 0.2,
       angry: a.browDown * 1.3 + a.sneer * 0.7 + a.press * 0.4 + a.squint * 0.25 - a.smile * 0.8 - a.browInnerUp * 0.2
     };
+  }
+
+  /* ---------- 측정 테스트 모드 (주소 끝에 ?debug=1) ---------- */
+  var dbg = null;
+  function initDebug() {
+    if (!DEBUG) return;
+    dbg = document.createElement("div");
+    dbg.className = "debug-panel";
+    dbg.setAttribute("aria-hidden", "true");
+    $("cam-stage").appendChild(dbg);
+  }
+  function renderDebug(e) {
+    if (!dbg) return;
+    var a = cam.lastA || {};
+    function bar(label, v, color) {
+      var p = clamp(Math.round(v), 0, 100);
+      return '<div class="dbg-row"><span>' + label + '</span><i><b style="width:' + p + '%;background:' + color + '"></b></i><em>' + p + "</em></div>";
+    }
+    function raw(label, v) { return "<span>" + label + " <b>" + (v || 0).toFixed(2) + "</b></span>"; }
+    var target = game.card ? game.card.emo : null;
+    var html = '<div class="dbg-title">측정 테스트 모드' + (cam.baseline ? "" : " · 보정 전") + "</div>";
+    EMO_KEYS.forEach(function (k) {
+      html += bar(EMOTIONS[k].label + (k === target ? " ◀" : ""), cam.score[k], EMO_COLOR[k]);
+    });
+    html += '<div class="dbg-raw">' +
+      raw("입꼬리↑", a.smile) + raw("입꼬리↓", a.frown) + raw("눈썹안쪽↑", a.browInnerUp) + raw("미간", a.browDown) +
+      raw("눈크게", a.eyeWide) + raw("입벌림", a.jawOpen) + raw("코찡긋", a.sneer) + raw("입다묾", a.press) +
+      raw("아랫입술↑", a.shrugLower) + raw("삐죽", a.pucker) + raw("고개숙임", a.headDown) +
+      "</div>";
+    dbg.innerHTML = html;
   }
 
   function handleResult(res, ctx) {
@@ -376,7 +431,7 @@
     if (current === "calib") updateCalibUI(has);
     if (!has) { decayScores(); return; }
 
-    var f = featureFrom(blendMap(res));
+    var f = featureFrom(blendMap(res), res.faceLandmarks[0]);
     if (cam.calibSamples) { cam.calibSamples.push(f); return; }
 
     var e = emotionsFrom(f);
@@ -385,6 +440,7 @@
       var v = clamp(e[k] / TUNING[k].scale * 100, 0, 100);
       cam.score[k] = cam.score[k] * (1 - s) + v * s;
     });
+    renderDebug(e);
     if (current === "play") onScores();
   }
   function decayScores() {
@@ -425,6 +481,7 @@
       var v = k === target ? clamp(t * 14, 0, 92) : 10 + 8 * Math.sin(t + k.length);
       cam.score[k] = cam.score[k] * 0.8 + v * 0.2;
     });
+    renderDebug();
     onScores();
   }
 
@@ -533,14 +590,20 @@
     $("play-stars").textContent = "우리 반 별 " + game.stars + " / " + total;
     $("play-text").textContent = c.text;
     $("gauge-label").textContent = EMOTIONS[c.emo].label + " 표정";
-    $("gauge-line").style.left = state.settings.level + "%";
-    $("gauge-pass").textContent = "통과선 " + state.settings.level;
-    $("gauge-hint").textContent = "이 상황의 표정을 지어 보세요";
+    var lv = passLevel(c.emo);
+    $("gauge-line").style.left = lv + "%";
+    $("gauge-pass").textContent = "통과선 " + lv;
+    $("gauge-hint").textContent = COACH[c.emo];
+    game.timeUp = false;
     $("gauge").classList.remove("passed");
     var toPick = $("btn-to-pick"); toPick.textContent = "마음 고르기로"; toPick.classList.remove("glow");
 
     var teacher = cam.mode === "teacher";
-    $("btn-teacher-pass").hidden = !(teacher);
+    // 선생님 통과 버튼: 카메라 없이 할 때는 크게, 카메라 모드에서는 작게 항상 보여요
+    var tp = $("btn-teacher-pass");
+    tp.hidden = false;
+    tp.classList.toggle("small", !teacher);
+    tp.textContent = teacher ? "잘했어요! 통과" : "선생님 통과";
     $("gauge").hidden = teacher; $("gauge-num").hidden = teacher;
     document.querySelector(".gauge-foot").hidden = teacher;
     $("mini-meters").hidden = teacher;
@@ -558,6 +621,10 @@
     if (cam.mode === "demo") startLoop();
   }
 
+  function passLevel(emo) {
+    return clamp(Number(state.settings.level) + (TUNING[emo].passOffset || 0), 30, 95);
+  }
+
   function onScores() {
     if (!game.card) return;
     var k = game.card.emo, v = Math.round(cam.score[k]);
@@ -567,7 +634,11 @@
     EMO_KEYS.forEach(function (o) { var m = $("mini-" + o); if (m) m.style.width = clamp(cam.score[o], 0, 100) + "%"; });
     if (game.passed) return;
     game.best = Math.max(game.best, v);
-    if (v >= state.settings.level) {
+    var lv = passLevel(k);
+    if (!game.timeUp && cam.mode !== "teacher") {
+      $("gauge-hint").textContent = v >= lv * 0.6 ? "조금만 더! " + COACH[k] : COACH[k];
+    }
+    if (v >= lv) {
       var now = performance.now();
       if (!game.holdStart) game.holdStart = now;
       if (now - game.holdStart >= TUNING.holdMs) pass();
@@ -594,7 +665,7 @@
 
   function startTimer() {
     stopTimer();
-    var total = Number(state.settings.time) || 0;
+    var total = DEBUG ? 0 : (Number(state.settings.time) || 0); // 측정 모드에서는 시간 제한 없음
     var t = $("play-timer");
     if (!total) { t.hidden = true; return; }
     t.hidden = false; t.classList.remove("warn");
@@ -608,6 +679,7 @@
       if (game.timerLeft <= 0) {
         stopTimer();
         if (!game.passed) {
+          game.timeUp = true;
           $("gauge-hint").textContent = "시간이 끝났어요! 마음 고르기로 넘어가요";
           $("btn-to-pick").classList.add("glow");
         }
@@ -966,5 +1038,7 @@
 
   /* ---------- 시작 ---------- */
   startCover();
+  initDebug();
   if (DEMO) document.title = "[테스트] " + document.title;
+  if (DEBUG) document.title = "[측정] " + document.title;
 })();

@@ -129,6 +129,18 @@ svg { display: block; }
 .btn-dark.small { font-size: 1.25rem; padding: 0.55rem 1.3rem; }
 .btn-chip { background: rgba(255,255,255,0.7); border: 2px solid var(--white); padding: 0.4rem 1.1rem; font-size: 1rem; font-weight: 900; color: var(--ink); }
 .btn-teacher { width: 100%; margin-top: 0.4rem; background: var(--ink); color: var(--white); border: none; font-family: "Jua", sans-serif; font-size: 1.6rem; padding: 0.8rem; }
+.btn-teacher.small { width: auto; align-self: flex-end; margin-top: 0; min-height: 36px; padding: 0.3rem 0.9rem; background: rgba(255,255,255,0.75); color: var(--ink-mute); font-family: "Noto Sans KR", sans-serif; font-size: 0.85rem; font-weight: 900; }
+
+/* 측정 테스트 모드 (?debug=1) */
+.debug-panel { position: absolute; right: 0.8rem; top: 0.8rem; width: min(17rem, 60%); background: rgba(20,14,48,0.82); color: #fff; border-radius: 1rem; padding: 0.7rem 0.8rem; font-size: 0.78rem; line-height: 1.35; z-index: 3; pointer-events: none; }
+.dbg-title { font-weight: 900; margin-bottom: 0.35rem; color: #FFE27A; }
+.dbg-row { display: grid; grid-template-columns: 3.4rem 1fr 2rem; align-items: center; gap: 0.4rem; margin: 0.15rem 0; font-weight: 700; }
+.dbg-row i { height: 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.18); overflow: hidden; }
+.dbg-row b { display: block; height: 100%; border-radius: 999px; }
+.dbg-row em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+.dbg-raw { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 0.6rem; margin-top: 0.45rem; padding-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.2); color: #D6D0F5; }
+.dbg-raw b { color: #fff; font-variant-numeric: tabular-nums; }
+
 .link-btn { background: none; border: none; padding: 0.4rem 0.2rem; font-size: 0.95rem; font-weight: 900; color: var(--ink-mute); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; }
 .icon-btn { width: 44px; height: 44px; border-radius: 999px; border: none; background: rgba(255,255,255,0.8); display: grid; place-items: center; }
 .icon-btn svg { width: 20px; height: 20px; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; fill: none; }
