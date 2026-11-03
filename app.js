@@ -8,7 +8,7 @@
   "use strict";
 
   /* ---------- 설정 ---------- */
-  var APP_VERSION = "v1.2";
+  var APP_VERSION = "v1.3";
   var MP_VERSION = "0.10.14";
   var MP_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + MP_VERSION;
   var MP_MODULE = MP_BASE + "/vision_bundle.mjs";
@@ -197,38 +197,78 @@
   /* =========================================================
      표지
      ========================================================= */
-  var FACES = [
-    { name: "뿌듯함", emo: "joy", g: ["#FFFFFF", "#FFD0F0", "#B9A4FF", "#8FD8F5"],
-      parts: '<path d="M32 46 Q37 40 42 46" class="s"/><path d="M58 46 Q63 40 68 46" class="s"/><path d="M34 60 Q50 76 66 60" class="s w"/><circle cx="28" cy="58" r="5" fill="#FF8FCB" opacity=".7"/><circle cx="72" cy="58" r="5" fill="#FF8FCB" opacity=".7"/>' },
-    { name: "깜짝 놀람", emo: "surprise", g: ["#FFFFFF", "#FFEBA8", "#FFB98A", "#FF9FD8"],
-      parts: '<path d="M28 34 Q36 27 43 33" class="s t"/><path d="M57 33 Q64 27 72 34" class="s t"/><circle cx="37" cy="45" r="5.5" fill="#2A1F5C"/><circle cx="63" cy="45" r="5.5" fill="#2A1F5C"/><ellipse cx="50" cy="66" rx="8" ry="10" fill="#2A1F5C"/>' },
-    { name: "속상함", emo: "sad", g: ["#FFFFFF", "#CFE6FF", "#9FC4FF", "#B9A4FF"],
-      parts: '<path d="M30 38 L42 34" class="s t"/><path d="M70 38 L58 34" class="s t"/><path d="M32 46 Q37 51 42 46" class="s"/><path d="M58 46 Q63 51 68 46" class="s"/><path d="M37 70 Q50 60 63 70" class="s w"/><path d="M66 52 Q69 58 66 61 Q63 58 66 52 z" fill="#6FB6FF" stroke="#fff" stroke-width="1"/>' },
-    { name: "억울함", emo: "angry", g: ["#FFFFFF", "#FFD3D3", "#FF9FB0", "#C9A4FF"],
-      parts: '<path d="M29 34 L43 40" class="s"/><path d="M71 34 L57 40" class="s"/><circle cx="37" cy="47" r="4.5" fill="#2A1F5C"/><circle cx="63" cy="47" r="4.5" fill="#2A1F5C"/><path d="M38 68 Q44 63 50 68 Q56 73 62 68" class="s w"/><circle cx="26" cy="60" r="6" fill="#FF7A9C" opacity=".6"/><circle cx="74" cy="60" r="6" fill="#FF7A9C" opacity=".6"/>' }
-  ];
-  function faceSvg(f, idx) {
-    var id = "jg" + idx + "_" + Math.floor(Math.random() * 1e6);
-    return '<svg class="pop" viewBox="0 0 100 100" role="img" aria-label="' + f.name + ' 얼굴">' +
-      '<style>.s{fill:none;stroke:#2A1F5C;stroke-width:4.5;stroke-linecap:round}.s.t{stroke-width:4}.s.w{stroke-width:5}</style>' +
-      '<defs><radialGradient id="' + id + '" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="' + f.g[0] + '"/><stop offset="35%" stop-color="' + f.g[1] + '"/><stop offset="75%" stop-color="' + f.g[2] + '"/><stop offset="100%" stop-color="' + f.g[3] + '"/></radialGradient></defs>' +
-      '<circle cx="50" cy="50" r="46" fill="url(#' + id + ')"/>' +
-      '<ellipse cx="34" cy="24" rx="12" ry="7" fill="#fff" opacity=".9" transform="rotate(-25 34 24)"/>' +
-      f.parts + "</svg>";
+  /* ---------- 젤리 감정 캐릭터 ---------- */
+  var INK = "#2A1F5C";
+  var JELLY = {
+    joy:      ["#FFFFFF", "#FFEBA8", "#FFC2E8", "#C9B8FF"],
+    surprise: ["#FFFFFF", "#FFE1C2", "#FFB0C8", "#FF9FD8"],
+    sad:      ["#FFFFFF", "#CFE6FF", "#9FC4FF", "#B9A4FF"],
+    angry:    ["#FFFFFF", "#FFD3D3", "#FF9FB0", "#C9A4FF"]
+  };
+  var STAR10 = "60.0,12.0 81.2,34.9 109.5,47.9 94.2,75.1 90.6,106.1 60.0,100.0 29.4,106.1 25.8,75.1 10.5,47.9 38.8,34.9";
+  var SPIKE14 = "60.0,14.0 77.8,27.1 99.1,32.8 100.0,54.9 108.7,75.1 92.1,89.6 81.7,109.0 60.0,105.0 38.3,109.0 27.9,89.6 11.3,75.1 20.0,54.9 20.9,32.8 42.2,27.1";
+  var charSeq = 0;
+  function charSvg(emo) {
+    var id = "jl" + (++charSeq), g = JELLY[emo];
+    var grad = '<defs><radialGradient id="' + id + '" cx="35%" cy="32%" r="78%"><stop offset="0%" stop-color="' + g[0] + '"/><stop offset="35%" stop-color="' + g[1] + '"/><stop offset="78%" stop-color="' + g[2] + '"/><stop offset="100%" stop-color="' + g[3] + '"/></radialGradient></defs>';
+    var F = 'url(#' + id + ')', st = ' stroke="' + INK + '" stroke-linecap="round" fill="none"';
+    var body = "";
+    if (emo === "joy") {
+      body = '<circle cx="60" cy="64" r="48" fill="' + F + '" stroke="#fff" stroke-width="5"/>' +
+        '<ellipse cx="42" cy="34" rx="13" ry="7" fill="#fff" opacity=".85" transform="rotate(-25 42 34)"/>' +
+        '<g class="eye"><path d="M37 58 Q44 49 51 58"' + st + ' stroke-width="5"/></g><g class="eye"><path d="M69 58 Q76 49 83 58"' + st + ' stroke-width="5"/></g>' +
+        '<path d="M44 72 Q60 92 76 72 Z" fill="' + INK + '"/><path d="M52 80 Q60 86 68 80 Q60 90 52 80 Z" fill="#FF7A8A"/>' +
+        '<circle cx="32" cy="74" r="6" fill="#FF8FCB" opacity=".6"/><circle cx="88" cy="74" r="6" fill="#FF8FCB" opacity=".6"/>';
+    } else if (emo === "surprise") {
+      body = '<polygon points="' + STAR10 + '" fill="#fff" stroke="#fff" stroke-width="22" stroke-linejoin="round"/>' +
+        '<polygon points="' + STAR10 + '" fill="' + F + '" stroke="' + F + '" stroke-width="10" stroke-linejoin="round"/>' +
+        '<ellipse cx="46" cy="36" rx="10" ry="5" fill="#fff" opacity=".85" transform="rotate(-30 46 36)"/>' +
+        '<g class="eye"><circle cx="46" cy="60" r="10" fill="#fff"/><circle cx="46" cy="60" r="5" fill="' + INK + '"/></g>' +
+        '<g class="eye"><circle cx="74" cy="60" r="10" fill="#fff"/><circle cx="74" cy="60" r="5" fill="' + INK + '"/></g>' +
+        '<ellipse cx="60" cy="84" rx="7" ry="9" fill="' + INK + '"/>';
+    } else if (emo === "sad") {
+      body = '<path d="M60 6 C46 30 16 56 16 80 C16 103 36 118 60 118 C84 118 104 103 104 80 C104 56 74 30 60 6 Z" fill="' + F + '" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>' +
+        '<ellipse cx="44" cy="58" rx="9" ry="5" fill="#fff" opacity=".85" transform="rotate(-40 44 58)"/>' +
+        '<path d="M36 64 L49 59 M84 64 L71 59"' + st + ' stroke-width="4.5"/>' +
+        '<g class="eye"><circle cx="46" cy="76" r="5" fill="' + INK + '"/></g><g class="eye"><circle cx="74" cy="76" r="5" fill="' + INK + '"/></g>' +
+        '<path d="M50 98 Q60 90 70 98"' + st + ' stroke-width="5"/>' +
+        '<path class="tear" d="M78 84 Q82 92 78 96 Q74 92 78 84 Z" fill="#6FB6FF" stroke="#fff" stroke-width="1"/>';
+    } else {
+      body = '<circle class="puff" cx="40" cy="10" r="6" fill="#FFC2E8"/><circle class="puff puff2" cx="82" cy="8" r="5" fill="#FFC2E8"/>' +
+        '<polygon points="' + SPIKE14 + '" fill="#fff" stroke="#fff" stroke-width="20" stroke-linejoin="round"/>' +
+        '<polygon points="' + SPIKE14 + '" fill="' + F + '" stroke="' + F + '" stroke-width="8" stroke-linejoin="round"/>' +
+        '<ellipse cx="44" cy="40" rx="10" ry="5" fill="#fff" opacity=".85" transform="rotate(-30 44 40)"/>' +
+        '<path d="M36 54 L52 61 M84 54 L68 61"' + st + ' stroke-width="6"/>' +
+        '<g class="eye"><circle cx="46" cy="70" r="5" fill="' + INK + '"/></g><g class="eye"><circle cx="74" cy="70" r="5" fill="' + INK + '"/></g>' +
+        '<path d="M46 92 Q53 86 60 92 Q67 98 74 92"' + st + ' stroke-width="5"/>';
+    }
+    return '<svg viewBox="0 0 120 120" aria-hidden="true">' + grad + body + "</svg>";
   }
-  var coverIdx = 0, coverTimer = null;
-  function showCover() {
-    var f = FACES[coverIdx];
-    $("cover-face").innerHTML = faceSvg(f, coverIdx);
-    $("cover-name").textContent = f.name;
-    var chips = $("cover-chips"); chips.innerHTML = "";
-    EMO_KEYS.forEach(function (k) { chips.appendChild(el("span", { class: k === f.emo ? "on" : "", text: EMOTIONS[k].label })); });
+  function charEl(emo, extraClass, delay) {
+    var d = el("div", { class: "char" + (extraClass ? " " + extraClass : "") });
+    d.innerHTML = charSvg(emo);
+    if (delay) d.style.animationDelay = delay;
+    return d;
   }
+  var ASK = { joy: "기쁜 표정 보여줘!", surprise: "놀란 표정 보여줘!", sad: "슬픈 표정 보여줘!", angry: "화난 표정 보여줘!" };
+
+  /* =========================================================
+     표지: 통통 튀는 캐릭터 무대
+     ========================================================= */
   function startCover() {
-    stopCover(); showCover();
-    coverTimer = setInterval(function () { coverIdx = (coverIdx + 1) % FACES.length; showCover(); }, 1900);
+    var row = $("stage-row");
+    if (row.childElementCount) return;
+    EMO_KEYS.forEach(function (k, i) {
+      var delay = (i * 0.25) + "s";
+      var a = el("div", { class: "actor" + (i === 1 || i === 2 ? " up" : "") });
+      a.appendChild(charEl(k, "hop", delay));
+      var sh = el("div", { class: "shadow" }); sh.style.animationDelay = delay;
+      a.appendChild(sh);
+      a.appendChild(el("span", { class: "name", text: EMOTIONS[k].label }));
+      row.appendChild(a);
+    });
   }
-  function stopCover() { if (coverTimer) clearInterval(coverTimer); coverTimer = null; }
+  function stopCover() { /* 애니메이션은 CSS로 계속 움직여요 */ }
 
   $("app-version").textContent = APP_VERSION;
   $("btn-start").addEventListener("click", startGame);
@@ -497,6 +537,7 @@
       setPlaceholder(true, "테스트 모드"); setCamStatus("ok", "테스트 모드");
       return;
     }
+    $("cam-stage").classList.add("fx");
     btn.textContent = "편안한 얼굴 기억하기";
     msg.textContent = "카메라를 켜는 중이에요…";
     setCamStatus("", "준비 중");
@@ -586,7 +627,14 @@
     EMO_KEYS.forEach(function (k) { cam.score[k] = 0; });
     go("play");
     var total = game.deck.length;
-    $("play-count").textContent = "카드 " + (game.idx + 1) + " / " + total;
+    $("play-count").textContent = (game.idx + 1) + " / " + total;
+    var prog = $("play-prog"); prog.innerHTML = "";
+    prog.classList.toggle("many", total > 12);
+    for (var i = 0; i < total; i++) prog.appendChild(el("i", { class: i < game.idx ? "done" : i === game.idx ? "now" : "" }));
+    // 카메라 속 캐릭터와 말풍선
+    var pc = $("peek-char"); pc.innerHTML = charSvg(c.emo); pc.classList.add("char");
+    $("peek-text").textContent = ASK[c.emo];
+    $("cam-stage").classList.toggle("fx", cam.mode !== "teacher");
     $("play-stars").textContent = "우리 반 별 " + game.stars + " / " + total;
     $("play-text").textContent = c.text;
     $("gauge-label").textContent = EMOTIONS[c.emo].label + " 표정";
@@ -610,10 +658,11 @@
 
     var mm = $("mini-meters"); mm.innerHTML = "";
     EMO_KEYS.filter(function (k) { return k !== c.emo; }).forEach(function (k) {
-      mm.appendChild(el("div", { class: "mini" }, [
-        el("span", { text: EMOTIONS[k].label }),
-        el("div", { class: "bar" }, [el("i", { id: "mini-" + k, style: "background:" + EMO_COLOR[k] })])
-      ]));
+      var mi = el("div", { class: "mini", title: EMOTIONS[k].label });
+      mi.appendChild(charEl(k, "", (Math.random() * 0.8).toFixed(2) + "s"));
+      mi.appendChild(el("span", { class: "sr-only", text: EMOTIONS[k].label }));
+      mi.appendChild(el("div", { class: "bar" }, [el("i", { id: "mini-" + k, style: "background:" + EMO_COLOR[k] })]));
+      mm.appendChild(mi);
     });
     onScores();
     startTimer();
@@ -666,15 +715,18 @@
   function startTimer() {
     stopTimer();
     var total = DEBUG ? 0 : (Number(state.settings.time) || 0); // 측정 모드에서는 시간 제한 없음
-    var t = $("play-timer");
+    var t = $("play-timer"), num = $("timer-num"), ring = $("timer-ring");
     if (!total) { t.hidden = true; return; }
     t.hidden = false; t.classList.remove("warn");
     game.timerLeft = total;
-    var fmt = function (s) { return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
-    t.textContent = fmt(total);
+    var C = 125.66;
+    ring.style.transition = "none"; ring.style.strokeDashoffset = "0";
+    void ring.getBoundingClientRect(); ring.style.transition = "";
+    num.textContent = String(total);
     game.timerIv = setInterval(function () {
       game.timerLeft--;
-      t.textContent = fmt(Math.max(0, game.timerLeft));
+      num.textContent = String(Math.max(0, game.timerLeft));
+      ring.style.strokeDashoffset = String(C * (1 - Math.max(0, game.timerLeft) / total));
       if (game.timerLeft <= 3 && game.timerLeft > 0) { t.classList.add("warn"); sfxTick(); }
       if (game.timerLeft <= 0) {
         stopTimer();
@@ -711,6 +763,8 @@
     var c = game.card, total = game.deck.length;
     $("pick-count").textContent = "카드 " + (game.idx + 1) + " / " + total;
     $("score-top").textContent = game.passed ? "표정 연기 성공!" : "표정 연기 끝!";
+    var sc = $("score-card"), oldc = sc.querySelector(".char"); if (oldc) oldc.remove();
+    sc.appendChild(charEl(c.emo, "hop"));
     if (cam.mode === "teacher") {
       $("score-num").textContent = game.passed ? "통과" : "도전";
       $("score-emo").textContent = "· " + EMOTIONS[c.emo].label;
@@ -812,6 +866,8 @@
     stopCamera();
     go("end");
     var total = game.deck.length, box = $("end-stars");
+    var cast = $("end-cast"); cast.innerHTML = "";
+    EMO_KEYS.forEach(function (k, i) { cast.appendChild(charEl(k, "hop", (i * 0.2) + "s")); });
     box.innerHTML = "";
     for (var i = 0; i < total; i++) {
       var s = document.createElementNS(SVG_NS, "svg");
@@ -1025,7 +1081,7 @@
     openModal("오픈소스 라이선스",
       "<p>표정 챌린지는 아래 오픈소스를 사용해요. 카메라 영상과 얼굴 정보는 이 기기 안에서만 처리되고 어디에도 저장·전송되지 않아요.</p>" +
       "<h3>MediaPipe Tasks Vision · Face Landmarker 모델</h3><p>© Google LLC · Apache License 2.0 · <a href=\"https://github.com/google-ai-edge/mediapipe\" target=\"_blank\" rel=\"noopener\">github.com/google-ai-edge/mediapipe</a></p>" +
-      "<h3>Jua 글꼴</h3><p>© Woowahan Brothers · SIL Open Font License 1.1 · Google Fonts</p>" +
+      "<h3>Bagel Fat One 글꼴</h3><p>SIL Open Font License 1.1 · Google Fonts</p>" +
       "<h3>Noto Sans KR 글꼴</h3><p>© Google · SIL Open Font License 1.1 · Google Fonts</p>" +
       "<h3>qrcode-generator</h3><p>© Kazuhiko Arase · MIT License</p>" +
       "<p class=\"muted-small\">전체 고지문은 프로젝트의 THIRD_PARTY_NOTICES.md 파일에 있어요.</p>");

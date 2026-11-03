@@ -8,8 +8,8 @@
 <title>표정 챌린지 | 티처빌연수원</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;900&display=swap">
-<link rel="stylesheet" href="style.css?v=1.2">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="style.css?v=1.3">
 </head>
 <body>
 <div class="bg" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
@@ -48,11 +48,11 @@
         </p>
       </div>
       <div class="start-right">
-        <div class="glass-card face-card">
-          <div class="face-holder" id="cover-face"></div>
-          <span class="muted-label">오늘의 마음</span>
-          <span class="face-name" id="cover-name">뿌듯함</span>
-          <div class="emo-chips" id="cover-chips"></div>
+        <div class="glass-card stage">
+          <div class="stage-bubble jua">오늘 내 표정은?</div>
+          <div class="stage-floor"></div>
+          <div class="stage-row" id="stage-row"></div>
+          <span class="stage-cap">AI가 기쁨 · 놀람 · 슬픔 · 화남 표정을 알아봐요</span>
         </div>
       </div>
     </div>
@@ -101,12 +101,20 @@
       <button type="button" class="btn-chip" data-go="start" aria-label="처음으로">‹</button>
       <span class="brand-title">표정 챌린지</span>
       <span class="spacer"></span>
-      <span class="pill-glass" id="play-count">카드 1 / 10</span>
-      <span class="pill-glass star-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg><span id="play-stars">우리 반 별 0 / 10</span></span>
-      <span class="pill-dark" id="play-timer">0:15</span>
+      <span class="pill-glass prog-pill"><span class="prog" id="play-prog" aria-hidden="true"></span><span id="play-count">1 / 10</span></span>
+      <span class="pill-glass star-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-i" d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg><span id="play-stars">우리 반 별 0 / 10</span></span>
+      <span class="timer" id="play-timer" role="timer" aria-label="남은 시간">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="t-bg" cx="24" cy="24" r="20"/><circle class="t-ring" id="timer-ring" cx="24" cy="24" r="20" transform="rotate(-90 24 24)"/></svg>
+        <span id="timer-num">15</span>
+      </span>
     </header>
     <div class="play-body">
-      <div class="cam-slot" id="play-cam-slot"></div>
+      <div class="cam-slot" id="play-cam-slot">
+        <div class="peek" id="peek" aria-hidden="true">
+          <span class="peek-bubble jua" id="peek-text">표정 보여줘!</span>
+          <div class="peek-char hop" id="peek-char"></div>
+        </div>
+      </div>
       <div class="play-side">
         <div class="glass-card situation">
           <span class="tag-grad">상황 카드</span>
@@ -118,8 +126,8 @@
             <span class="gauge-num jua" id="gauge-num">0</span>
           </div>
           <div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge">
-            <div class="gauge-fill" id="gauge-fill"></div>
-            <div class="gauge-line" id="gauge-line"></div>
+            <div class="gauge-fill" id="gauge-fill"><i class="shine"></i></div>
+            <div class="gauge-line" id="gauge-line"><svg class="flag" viewBox="0 0 26 22" aria-hidden="true"><path d="M2 22 V2 L22 7 L2 13"/></svg></div>
           </div>
           <div class="gauge-foot"><span id="gauge-hint">이 상황의 표정을 지어 보세요</span><span id="gauge-pass">통과선 70</span></div>
           <div class="mini-meters" id="mini-meters"></div>
@@ -215,6 +223,7 @@
   <!-- ============ 6. 끝 ============ -->
   <section id="screen-end" class="screen" aria-labelledby="end-title">
     <div class="end-wrap glass-card">
+      <div class="end-cast" id="end-cast" aria-hidden="true"></div>
       <div class="end-stars" id="end-stars"></div>
       <h2 id="end-title" class="jua end-title">우리 반 마음 챌린지 완성!</h2>
       <p class="end-sub" id="end-sub"></p>
@@ -298,6 +307,12 @@
     <svg viewBox="0 0 190 230" aria-hidden="true"><ellipse cx="95" cy="115" rx="80" ry="105"/></svg>
     <span id="cam-placeholder-text">카메라 준비 중</span>
   </div>
+  <div class="cam-fx" aria-hidden="true">
+    <i class="scan"></i>
+    <svg class="corners" viewBox="0 0 330 400" preserveAspectRatio="none"><path d="M3 56 V20 Q3 3 20 3 H56 M274 3 H310 Q327 3 327 20 V56 M327 344 V380 Q327 397 310 397 H274 M56 397 H20 Q3 397 3 380 V344"/></svg>
+    <svg class="spark s1" viewBox="0 0 24 24"><path d="M12 4 l1.6 4.8 l4.8 1.6 l-4.8 1.6 l-1.6 4.8 l-1.6 -4.8 l-4.8 -1.6 l4.8 -1.6 z"/></svg>
+    <svg class="spark s2" viewBox="0 0 24 24"><path d="M12 4 l1.6 4.8 l4.8 1.6 l-4.8 1.6 l-1.6 4.8 l-1.6 -4.8 l-4.8 -1.6 l4.8 -1.6 z"/></svg>
+  </div>
   <span class="cam-status" id="cam-status"><i></i><b>준비 중</b></span>
 </div>
 
@@ -317,7 +332,7 @@
 <div class="confetti" id="confetti" aria-hidden="true"></div>
 <div class="sr-only" aria-live="polite" id="live"></div>
 
-<script src="cards.js?v=1.2"></script>
-<script src="app.js?v=1.2"></script>
+<script src="cards.js?v=1.3"></script>
+<script src="app.js?v=1.3"></script>
 </body>
 </html>

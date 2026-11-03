@@ -18,11 +18,10 @@
 
 ※ 배포 전 Face Landmarker 모델 안내 페이지(Model card)의 라이선스 표기를 한 번 더 확인해 주세요.
 
-## Jua 글꼴
+## Bagel Fat One 글꼴
 
-- 저작권: Copyright Woowahan Brothers
 - 라이선스: SIL Open Font License, Version 1.1
-- 출처: https://fonts.google.com/specimen/Jua
+- 출처: https://fonts.google.com/specimen/Bagel+Fat+One
 
 ## Noto Sans KR 글꼴
 
